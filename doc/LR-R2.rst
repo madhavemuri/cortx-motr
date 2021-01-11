@@ -24,25 +24,28 @@ Dell Setup,
 2) Passwordless login setup between nodes
 =========================================
 
- # ssh-keygen
- # ssh-copy-id root@sm66-m14.colo.seagate.com
- # ssh smc66-m14.pun.seagate.com
- # ssh-copy-id root@smc67-m14.colo.seagate.com
- # ssh smc67-m14.colo.seagate.com
+# ssh-keygen
+# ssh-copy-id root@sm66-m14.colo.seagate.com
+# ssh smc66-m14.pun.seagate.com
+# ssh-copy-id root@smc67-m14.colo.seagate.com
+# ssh smc67-m14.colo.seagate.com
  
  Check passwordless login between all the nodes.
 
 3) Create volumes in 5u84
 ==========================
+   Refer https://github.com/Seagate/cortx-prvsnr/wiki/Seagate-Gallium-Storage-Controller-Configuration
+   # wget https://github.com/Seagate/cortx-prvsnr/blob/pre-cortx-1.0/srv/components/controller/files/scripts/controller-cli.sh
+   
   - Check whether 5u84 ip's 10.0.0.2 or 10.0.0.3 are reachable or not
        If it's not working then check status of scsi-network-relay
-	      # systemctl status scsi-network-relay
-		  systemctl start scsi-network-relay
+	  # systemctl status scsi-network-relay
+	  # systemctl start scsi-network-relay
   - To see the current volumes setup in the 5u84
      # ./controller-cli.sh host -h 10.0.0.2 -u manage -p '!Manage20' prov -s
       OR
-	   # ssh -l manage 10.0.0.2
-	    > show-volumes
+     # ssh -l manage 10.0.0.2
+     > show-volumes
       
   Then cleanup old volumes and create them as per LR R2 requirement,
   # ./controller-cli.sh host -h 10.0.0.2 -u manage -p '!Manage20' prov -c -a
@@ -89,7 +92,7 @@ Dell Setup,
     #  yum install cortx-hare --nogpgcheck
     #  yum install cortx-s3server --nogpgcheck
 	
-9) Motr setup
+8) Motr setup
 ==============
    Lnet setup,
    
@@ -116,16 +119,19 @@ Dell Setup,
    #  ip neigh flush all
    #  systemctl restart lnet
   
- 10) Hare + Motr Setup
+ 9) Hare + Motr Setup
+ =====================
+ 
     # yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
     # yum -y install consul-1.7.8
+    
     #  hctl bootstrap --mkfs cluster-mp-R1.yaml
     #  /opt/seagate/cortx/hare/libexec/m0crate-io-conf > crate.yaml
     #  dd if=/dev/urandom of=/tmp/128M bs=1M count=128
     #  m0crate -S crate.yaml
     #  hctl shutdown
 	
- 11) S3 setup and do the IO
+ 10) S3 setup and do the IO
  ==========================
  
     Setup HAproxy,
