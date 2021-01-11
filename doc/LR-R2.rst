@@ -69,6 +69,7 @@ Dell Setup,
    # yum install device-mapper-multipath
    
    Update /etc/multipath.conf
+    - refer Multipath configuration provided at the end of this document.
    
    # systemctl start multipathd.service
    
@@ -80,6 +81,7 @@ Dell Setup,
    # yum install fio
    
    # fio write-mpath.fio
+     - - refer fio workloadd configuration provided at the end of this document.
    
    # fio read-mpath.fio
 
@@ -144,6 +146,8 @@ Dell Setup,
    # systemctl restart lnet
    
    # lctl list_nids
+   
+   # For Lnet self test refer lnet configuration provided at the end of this document.
    
    Check with lctl ping <nid>, if ping is not working then do the following steps. 
     - wget https://raw.githubusercontent.com/Mellanox/gpu_direct_rdma_access/master/arp_announce_conf.sh
@@ -261,15 +265,17 @@ Multipath configuration
 =======================
 	  
 [root@smc65-m14 ~]# cat /etc/multipath.conf
+
+ ::
  
-defaults {
+  defaults {
         polling_interval 10
         max_fds 8192
         user_friendly_names yes
         find_multipaths yes
-}
+  }
 
-devices {
+  devices {
         device {
                 vendor "SEAGATE"
                 product "*"
@@ -284,25 +290,26 @@ devices {
                 rr_min_io_rq 1
                 no_path_retry 18
         }
-}
+  }
 
 Cluster Description File
 =========================
 
 [root@smc65-m14 ~]# cat cluster-R2.yaml
-# Cluster Description File (CDF).
-# See `cfgen --help-schema` for the format description.
-
-nodes:
+ ::
+ 
+  # Cluster Description File (CDF).
+  # See `cfgen --help-schema` for the format description.
+  nodes:
   - hostname: smc65-m14.colo.seagate.com # [user@]hostname
-    data_iface: enp175s0f0     # name of data network interface
-    data_iface_type: o2ib   # LNet type of network interface (optional);
-                            # supported values: "tcp" (default), "tcp"
-    m0_servers:
-      - runs_confd: true
-        io_disks:
-          data: []
-      - io_disks:
+     data_iface: enp175s0f0     # name of data network interface
+     data_iface_type: o2ib   # LNet type of network interface (optional);
+                             # supported values: "tcp" (default), "tcp"
+     m0_servers:
+       - runs_confd: true
+         io_disks:
+           data: []
+       - io_disks:
           data:
           - /dev/mapper/mpatha
           - /dev/mapper/mpathb
@@ -312,7 +319,7 @@ nodes:
           - /dev/mapper/mpathf
           - /dev/mapper/mpathg
           - /dev/mapper/mpathh
-      - io_disks:
+       - io_disks:
           data:
           - /dev/mapper/mpathi
           - /dev/mapper/mpathj
@@ -386,81 +393,85 @@ nodes:
     m0_clients:
         s3: 0           # number of S3 servers to start
         other: 2        # max quantity of other Mero clients this node may have
-pools:
-  - name: the pool
-    type: sns
-    data_units: 4
-    parity_units: 2
-    # allowed_failures: { site: 0, rack: 0, encl: 0, ctrl: 0, disk: 0 }
+  pools:
+   - name: the pool
+     type: sns
+     data_units: 4
+     parity_units: 2
+     # allowed_failures: { site: 0, rack: 0, encl: 0, ctrl: 0, disk: 0 }
 
 Fio workload,
 =============
 
 # cat write.fio
 
-[global]
-direct=1
-ioengine=libaio
-iodepth=16
-;invalidate=1
-ramp_time=5
-runtime=60
-time_based
-bs=1M
-rw=write
-numjobs=32
+ ::
+ 
+  [global]
+  direct=1
+  ioengine=libaio
+  iodepth=16
+  ;invalidate=1
+  ramp_time=5
+  runtime=60
+  time_based
+  bs=1M
+  rw=write
+  numjobs=32
 
 
-[job0]
-filename=/dev/mapper/mpatha
-[job1]
-filename=/dev/mapper/mpathb
-[job2]
-filename=/dev/mapper/mpathc
-[job3]
-filename=/dev/mapper/mpathd
-[job4]
-filename=/dev/mapper/mpathe
-[job5]
-filename=/dev/mapper/mpathf
-[job6]
-filename=/dev/mapper/mpathg
-[job7]
-filename=/dev/mapper/mpathh
-[job8]
-filename=/dev/mapper/mpathi
-[job9]
-filename=/dev/mapper/mpathj
-[job10]
-filename=/dev/mapper/mpathk
-[job11]
-filename=/dev/mapper/mpathl
-[job12]
-filename=/dev/mapper/mpathm
-[job13]
-filename=/dev/mapper/mpathn
-[job14]
-filename=/dev/mapper/mpatho
-[job15]
-filename=/dev/mapper/mpathp
+  [job0]
+  filename=/dev/mapper/mpatha
+  [job1]
+  filename=/dev/mapper/mpathb
+  [job2]
+  filename=/dev/mapper/mpathc
+  [job3]
+  filename=/dev/mapper/mpathd
+  [job4]
+  filename=/dev/mapper/mpathe
+  [job5]
+  filename=/dev/mapper/mpathf
+  [job6]
+  filename=/dev/mapper/mpathg
+  [job7]
+  filename=/dev/mapper/mpathh
+  [job8]
+  filename=/dev/mapper/mpathi
+  [job9]
+  filename=/dev/mapper/mpathj
+  [job10]
+  filename=/dev/mapper/mpathk
+  [job11]
+  filename=/dev/mapper/mpathl
+  [job12]
+  filename=/dev/mapper/mpathm
+  [job13]
+  filename=/dev/mapper/mpathn
+  [job14]
+  filename=/dev/mapper/mpatho
+  [job15]
+  filename=/dev/mapper/mpathp
 
 Lnet self test
 ==============
 
 # cat lst.sh
 
-export LST_SESSION=$$
-lst new_session twonoderead
-lst add_group server 192.168.49.49@o2ib
-lst add_group client 192.168.49.3@o2ib
+ ::
+ 
+  export LST_SESSION=$$
+  lst new_session twonoderead
+  lst add_group server 192.168.49.49@o2ib
+  lst add_group client 192.168.49.3@o2ib
 
-lst add_batch bulk_rw
-lst add_test --concurrency 90 --batch bulk_rw --from client --to server brw write size=1M
-lst run bulk_rw
-lst stat client server & sleep 30; kill $!
-lst stop bulk_read
-lst end_session
-
+  lst add_batch bulk_rw
+  lst add_test --concurrency 90 --batch bulk_rw --from client --to server brw write size=1M
+  lst run bulk_rw
+  lst stat client server & sleep 30; kill $!
+  lst stop bulk_read
+  lst end_session
+ 
 Run following command on both the nodes,
 
 # modprobe lnet_selftest
