@@ -81,7 +81,7 @@ Dell Setup,
    # yum install fio
    
    # fio write-mpath.fio
-     - - refer fio workloadd configuration provided at the end of this document.
+     - refer fio workloadd configuration provided at the end of this document.
    
    # fio read-mpath.fio
 
