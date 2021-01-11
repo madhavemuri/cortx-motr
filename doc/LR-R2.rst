@@ -2,7 +2,6 @@ Manual Setup of LR R2 cluster
 =============================
 
 Super Micro Setup,
-
 - smc65-m14.colo.seagate.com
 - smc66-m14.colo.seagate.com
 - smc67-m14.colo.seagate.com
@@ -24,6 +23,7 @@ Dell Setup,
  
 2) Passwordless login setup between nodes
 =========================================
+
  # ssh-keygen
  # ssh-copy-id root@sm66-m14.colo.seagate.com
  # ssh smc66-m14.pun.seagate.com
@@ -44,9 +44,8 @@ Dell Setup,
 	   # ssh -l manage 10.0.0.2
 	    > show-volumes
       
-	 Then, 
-	 Cleanup old volumes and create them as per LR R2,
-	 # ./controller-cli.sh host -h 10.0.0.2 -u manage -p '!Manage20' prov -c -a
+  Then cleanup old volumes and create them as per LR R2 requirement,
+  # ./controller-cli.sh host -h 10.0.0.2 -u manage -p '!Manage20' prov -c -a
 	   
 4) Multipath setup
 ==================
